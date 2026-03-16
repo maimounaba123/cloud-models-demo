@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cloud Models Explorer 🌩️</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0a0a1a;
+      color: #eee;
+      min-height: 100vh;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1a0533, #0d1b4b);
+      padding: 2rem;
+      text-align: center;
+      border-bottom: 2px solid #8e44ad;
+    }
+    header h1 { font-size: 2.2rem; color: #fff; }
+    header p  { color: #aaa; margin-top: .5rem; font-size: 1rem; }
+    .badge {
+      display: inline-block;
+      background: #8e44ad;
+      color: #fff;
+      padding: .3rem .8rem;
+      border-radius: 20px;
+      font-size: .8rem;
+      margin-top: .5rem;
+    }
+
+    /* ── PYRAMIDE ── */
+    .pyramid-section {
+      text-align: center;
+      padding: 2.5rem 1rem 1rem;
+    }
+    .pyramid-section h2 { color: #ccc; margin-bottom: 1.5rem; font-size: 1.3rem; }
+    .pyramid { display: flex; flex-direction: column; align-items: center; gap: .4rem; }
+    .pyramid-level {
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: bold; border-radius: 6px;
+      cursor: pointer; transition: transform .2s, box-shadow .2s;
+      font-size: 1rem; letter-spacing: 1px;
+      height: 52px;
+    }
+    .pyramid-level:hover { transform: scale(1.04); box-shadow: 0 0 18px rgba(255,255,255,.2); }
+    .l-saas  { width: 280px; background: #27ae60; }
+    .l-paas  { width: 380px; background: #8e44ad; }
+    .l-iaas  { width: 480px; background: #e74c3c; }
+    .pyramid-arrow { color: #666; font-size: 1.4rem; }
+
+    /* ── CARDS ── */
+    .cards-section { padding: 1.5rem 1rem 2rem; }
+    .cards-section h2 { text-align:center; color:#ccc; margin-bottom:1.2rem; font-size:1.2rem; }
+    .cards { display: flex; gap: 1.2rem; flex-wrap: wrap; justify-content: center; }
+
+    .card {
+      background: #111128;
+      border-radius: 12px;
+      width: 300px;
+      overflow: hidden;
+      border: 1px solid #222;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .card:hover { transform: translateY(-6px); box-shadow: 0 12px 30px rgba(0,0,0,.5); }
+
+    .card-header {
+      padding: 1rem 1.2rem;
+      display: flex; align-items: center; gap: .8rem;
+    }
+    .card-header .badge-name {
+      font-size: 1.4rem; font-weight: bold; color: #fff;
+    }
+    .card-header .full-name { font-size: .8rem; color: rgba(255,255,255,.75); }
+
+    .card-body { padding: 1rem 1.2rem; }
+    .card-body p { font-size: .88rem; color: #bbb; margin-bottom: 1rem; line-height: 1.5; }
+
+    .section-label {
+      font-size: .7rem; font-weight: bold; text-transform: uppercase;
+      letter-spacing: 1px; color: #888; margin: .7rem 0 .3rem;
+    }
+    .tag-list { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .5rem; }
+    .tag {
+      padding: .25rem .6rem; border-radius: 20px;
+      font-size: .75rem; font-weight: 600;
+    }
+    .tag.provider { background: #1e1e3a; color: #88aaff; border: 1px solid #334; }
+    .tag.client   { background: #1a2e1a; color: #88dd88; border: 1px solid #343; }
+
+    .analogie-box {
+      margin-top: .8rem;
+      background: #0d0d20;
+      border-radius: 8px;
+      padding: .6rem .9rem;
+      font-size: .82rem;
+      color: #ddd;
+      border-left: 3px solid;
+    }
+
+    .examples { margin-top: .8rem; }
+    .example-item {
+      display: flex; align-items: flex-start; gap: .5rem;
+      margin-bottom: .45rem;
+    }
+    .example-item .ex-name {
+      font-weight: bold; font-size: .82rem; min-width: 130px; color: #fff;
+    }
+    .example-item .ex-desc { font-size: .78rem; color: #999; }
+
+    /* ── TABLEAU COMPARATIF ── */
+    .compare-section { padding: 1rem 1rem 3rem; }
+    .compare-section h2 { text-align:center; color:#ccc; margin-bottom:1.2rem; font-size:1.2rem; }
+
+    .compare-table {
+      width: 100%; border-collapse: collapse;
+      background: #111128; border-radius: 10px; overflow: hidden;
+      font-size: .85rem;
+    }
+    .compare-table th {
+      padding: .8rem 1rem; text-align: center;
+      background: #1a1a35; color: #fff; font-size: .9rem;
+    }
+    .compare-table td {
+      padding: .7rem 1rem; border-top: 1px solid #1e1e35;
+      text-align: center; color: #ccc;
+    }
+    .compare-table tr:hover td { background: #16162a; }
+    .compare-table .row-label {
+      text-align: left; font-weight: bold; color: #aaa; width: 160px;
+    }
+    .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; }
+
+    /* ── QUI GÈRE QUOI ── */
+    .stack-section { padding: 1rem 1rem 2rem; }
+    .stack-section h2 { text-align:center; color:#ccc; margin-bottom:1.5rem; font-size:1.2rem; }
+    .stacks { display:flex; gap:1.2rem; justify-content:center; flex-wrap:wrap; }
+    .stack { width: 200px; }
+    .stack h3 { text-align:center; margin-bottom:.6rem; font-size:1rem; }
+    .stack-item {
+      padding: .5rem .8rem; margin-bottom: .3rem;
+      border-radius: 6px; font-size: .8rem; text-align: center;
+      font-weight: 600;
+    }
+    .managed-provider { background: #1a2040; color: #88aaff; }
+    .managed-client   { background: #1a3020; color: #88dd88; }
+    .legend {
+      display: flex; justify-content: center; gap: 2rem; margin-top: 1rem;
+      font-size: .82rem; color: #999;
+    }
+    .legend span { display: flex; align-items: center; gap: .4rem; }
+    .legend .box {
+      width: 14px; height: 14px; border-radius: 3px;
+    }
+
+    footer {
+      text-align: center; padding: 1.5rem;
+      background: #0d0d20; color: #555; font-size: .8rem;
+      border-top: 1px solid #1e1e35;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🌩️ Cloud Models Explorer</h1>
+  <p>Comprendre IaaS, PaaS et SaaS en un coup d'œil</p>
+  <span class="badge">⚡ Déployé sur Render — PaaS en action !</span>
+</header>
+
+<!-- PYRAMIDE -->
+<section class="pyramid-section">
+  <h2>🔺 La Pyramide des Services Cloud</h2>
+  <div class="pyramid">
+    <div class="pyramid-level l-saas" onclick="scrollToCard('saas')">☁️ SaaS — Software as a Service</div>
+    <div class="pyramid-arrow">▲ Plus d'abstraction</div>
+    <div class="pyramid-level l-paas" onclick="scrollToCard('paas')">🏗️ PaaS — Platform as a Service</div>
+    <div class="pyramid-arrow">▲ Plus de contrôle</div>
+    <div class="pyramid-level l-iaas" onclick="scrollToCard('iaas')">🖥️ IaaS — Infrastructure as a Service</div>
+  </div>
+</section>
+
+<!-- CARDS -->
+<section class="cards-section">
+  <h2>📋 Les 3 modèles en détail</h2>
+  <div class="cards">
+    {% for key, model in models.items() %}
+    <div class="card" id="card-{{ key }}">
+      <div class="card-header" style="background: {{ model.color }}22; border-bottom: 3px solid {{ model.color }}">
+        <div>
+          <div class="badge-name">{{ model.name }}</div>
+          <div class="full-name">{{ model.full }}</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>{{ model.description }}</p>
+
+        <div class="section-label">🏢 Fournisseur gère</div>
+        <div class="tag-list">
+          {% for item in model.fournisseur %}
+          <span class="tag provider">{{ item }}</span>
+          {% endfor %}
+        </div>
+
+        <div class="section-label">👨‍💻 Client gère</div>
+        <div class="tag-list">
+          {% for item in model.client %}
+          <span class="tag client">{{ item }}</span>
+          {% endfor %}
+        </div>
+
+        <div class="section-label">🎯 Exemples</div>
+        <div class="examples">
+          {% for ex in model.exemples %}
+          <div class="example-item">
+            <span class="ex-name">• {{ ex.nom }}</span>
+            <span class="ex-desc">{{ ex.usage }}</span>
+          </div>
+          {% endfor %}
+        </div>
+
+        <div class="analogie-box" style="border-color: {{ model.color }}">
+          {{ model.analogie }}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- QUI GÈRE QUOI -->
+<section class="stack-section">
+  <h2>🗂️ Qui gère quoi ? — Vue en couches</h2>
+  <div class="stacks">
+    {% for key, model in models.items() %}
+    <div class="stack">
+      <h3 style="color: {{ model.color }}">{{ model.name }}</h3>
+      {% set all_layers = ["Serveurs physiques", "Stockage", "Réseau", "Virtualisation",
+                           "Système d'exploitation", "Runtime", "Middleware", "Applications", "Données"] %}
+      {% for layer in all_layers %}
+        {% if layer in model.fournisseur %}
+          <div class="stack-item managed-provider">{{ layer }}</div>
+        {% else %}
+          <div class="stack-item managed-client">{{ layer }}</div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+  <div class="legend">
+    <span><div class="box" style="background:#1a2040;border:1px solid #88aaff"></div> Géré par le fournisseur</span>
+    <span><div class="box" style="background:#1a3020;border:1px solid #88dd88"></div> Géré par le client</span>
+  </div>
+</section>
+
+<!-- TABLEAU COMPARATIF -->
+<section class="compare-section">
+  <h2>⚖️ Tableau Comparatif</h2>
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th class="row-label">Critère</th>
+        {% for key, model in models.items() %}
+        <th><span class="dot" style="background:{{ model.color }}"></span>{{ model.name }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="row-label">Pour qui ?</td>
+        {% for key, model in models.items() %}<td>{{ model.pour_qui }}</td>{% endfor %}
+      </tr>
+      <tr>
+        <td class="row-label">Contrôle client</td>
+        <td>⭐⭐⭐⭐⭐ Élevé</td>
+        <td>⭐⭐⭐ Moyen</td>
+        <td>⭐ Faible</td>
+      </tr>
+      <tr>
+        <td class="row-label">Facilité déploiement</td>
+        <td>⭐⭐ Complexe</td>
+        <td>⭐⭐⭐⭐ Facile</td>
+        <td>⭐⭐⭐⭐⭐ Très facile</td>
+      </tr>
+      <tr>
+        <td class="row-label">Coût initial</td>
+        <td>💰 Variable</td>
+        <td>💰💰 Modéré</td>
+        <td>💰💰💰 Abonnement</td>
+      </tr>
+      <tr>
+        <td class="row-label">Avantages clés</td>
+        {% for key, model in models.items() %}
+        <td>{% for a in model.avantages %}✅ {{ a }}<br>{% endfor %}</td>
+        {% endfor %}
+      </tr>
+      <tr>
+        <td class="row-label">Inconvénients</td>
+        {% for key, model in models.items() %}
+        <td>{% for i in model.inconvenients %}⚠️ {{ i }}<br>{% endfor %}</td>
+        {% endfor %}
+      </tr>
+      <tr>
+        <td class="row-label">Analogie</td>
+        {% for key, model in models.items() %}<td>{{ model.analogie }}</td>{% endfor %}
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<footer>
+  Projet réalisé par <strong>Personne 3</strong> — Exposé Services Cloud IaaS/PaaS/SaaS &nbsp;|&nbsp;
+  Déployé sur <strong>Render (PaaS)</strong> 🚀
+</footer>
+
+<script>
+  function scrollToCard(id) {
+    document.getElementById('card-' + id).scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+</script>
+
+</body>
+</html>
